@@ -47,10 +47,10 @@ class Engine:
             if item in line:
                 source = (line.index(item), idx)
         if event in ctab:
-            self.map.move(source, (source[0] + ctab[event][0],
+            return self.map.move(source, (source[0] + ctab[event][0],
                                    source[1] + ctab[event][1]))
         else:
-            pass
+            return False
 
     def populate(self):
         for line in self.map:
@@ -63,7 +63,7 @@ class Engine:
         stop = False
         self.populate()
         pygame.time.set_timer(USEREVENT, 150)
-        tick = IController.LEFT
+        tick, watch = (IController.LEFT, IController.RIGHT)
         tick_watcher = False
         while not stop:
             for ev in event.get():
@@ -75,14 +75,17 @@ class Engine:
                     break
                 ev = self.controller.pump(ev)
                 if ev is not None:
-                    print(ev)
                     tick = ev
             if ev and tick_watcher:
                 tick_watcher = False
                 for ai in self.ais:
                     self.update(ai.play(self.map), True)
-                self.update(tick)
+                if not self.update(tick):
+                    self.update(watch)
+                    tick = watch
                 self.flip()
+                watch = tick
+
 
 
 if __name__ == '__main__':

@@ -18,10 +18,8 @@ class GamepadController(IController):
     def pump(self, event) -> int:
         if event.type == JOYBUTTONDOWN:
             return IController.ACTION
-        print([self.joystick.get_axis(i) for i in (0, 1)])
         coord = (round(self.joystick.get_axis(0)),
                  round(self.joystick.get_axis(1)))
-        print(coord)
         if coord not in self.ctab:
             return None
         return self.ctab[coord]

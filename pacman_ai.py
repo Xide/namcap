@@ -101,7 +101,7 @@ class PacmanAI(AI):
         pacman, enemies = self.locate_players(map)
         move, best = None, 0
         assert map[pacman] == Map.PACMAN
-        print('[PacmanAI] Enemies position at ', enemies)
+        #print('[PacmanAI] Enemies position at ', enemies)
         for x in range(map.x):
             for y in range(map.y):
                 if map[(x, y)] == Map.EMPTY:
@@ -110,7 +110,7 @@ class PacmanAI(AI):
                         score = min(score)
                     else:
                         score = -1
-                    print('[PacmanAI] Evaluating move', (x, y), ':', score)
+                    #print('[PacmanAI] Evaluating move', (x, y), ':', score)
                     if score > best:
                         best = score
                         move = (x, y)
@@ -125,6 +125,6 @@ class PacmanAI(AI):
                         if score < best:
                             best = score
                             mv2 = (x, y)
-        print(move, best)
-        print('[PacmanAI]: Selected move', move)
+        #print(move, best)
+        #print('[PacmanAI]: Selected move', move)
         return IController.from_tuple(mv2)

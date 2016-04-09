@@ -99,7 +99,6 @@ class Map:
             return self.map[item]
         elif isinstance(item, tuple):
             return self.map[item[1]][item[0]]
-        print(item)
         raise ValueError
 
     def __setitem__(self, key: tuple, value):

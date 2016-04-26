@@ -3,11 +3,16 @@ from pygame import event, time
 from pygame.locals import QUIT, USEREVENT
 from controller import IController
 from gamepadcontroller import GamepadController as Controller
+from keyboardcontroller import KeyboardController as FallbackController
 from map import Map
 from pacman_ai import PacmanAI
 
 
 class Engine:
+
+    def load_joysticks(self):
+        return []
+
     def __init__(self, x, y, **kw):
         self.x = x
         self.y = y
@@ -16,7 +21,9 @@ class Engine:
             pygame.quit()
             raise RuntimeError('Could not initialize %d modules (%d pass)'
                                % (numfail, numpass))
-        self.controller = Controller()
+        self.controllers = self.load_joysticks()
+        if not len(self.controllers):
+            self.controllers.append(FallbackController())
         self.map = Map(x, y)
         self.ais = [PacmanAI()]
         if 'map' in kw:
@@ -62,8 +69,11 @@ class Engine:
     def run(self):
         stop = False
         self.populate()
+        ticks = [IController.LEFT] * len(self.controllers)
+        watchs = [IController.RIGHT] * len(self.controllers)
+
         pygame.time.set_timer(USEREVENT, 150)
-        tick, watch = (IController.LEFT, IController.RIGHT)
+        #tick, watch = (IController.LEFT, IController.RIGHT)
         tick_watcher = False
         while not stop:
             for ev in event.get():
@@ -73,18 +83,24 @@ class Engine:
                 if ev.type == USEREVENT:
                     tick_watcher = True
                     break
-                ev = self.controller.pump(ev)
-                if ev is not None:
-                    tick = ev
-            if ev and tick_watcher:
+
+                for ctrl in self.controllers:
+                    if ctrl.match_device(ev):
+                        ev = ctrl.pump(ev)
+                        if ev is not None:
+                            ticks[self.controllers.index(ctrl)] = ev
+
+            if tick_watcher:
                 tick_watcher = False
+                for id in range(len(ticks)):
+                    if ticks[id]:
+                        if not self.update(ticks[id]):
+                            self.update(watchs[id])
+                            ticks[id] = watchs[id]
                 for ai in self.ais:
                     self.update(ai.play(self.map), True)
-                if not self.update(tick):
-                    self.update(watch)
-                    tick = watch
                 self.flip()
-                watch = tick
+                watchs = ticks
 
 
 

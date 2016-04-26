@@ -38,3 +38,6 @@ class IController:
         :return: one of LEFT, RIGHT, UP, DOWN, ACTION
         """
         pass
+
+    def match_device(self, event):
+        pass

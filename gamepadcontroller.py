@@ -3,6 +3,11 @@ from pygame.locals import *
 from pygame import joystick
 
 class GamepadController(IController):
+
+    @staticmethod
+    def joystick_number():
+        return joystick.get_count()
+
     def __init__(self, id=0):
         joystick.init()
         assert joystick.get_count()
@@ -22,4 +27,13 @@ class GamepadController(IController):
                  round(self.joystick.get_axis(1)))
         if coord not in self.ctab:
             return None
+        r = self.ctab[coord]
+        setattr(r, '_jid', self.joystick.id)
         return self.ctab[coord]
+
+    def match_device(self, event):
+        print(hasattr(event, '_jid'))
+        try:
+            return event._jid == self.joystick.id
+        except:
+            return False

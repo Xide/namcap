@@ -109,8 +109,8 @@ class Engine:
                         print(id, self.players_pos)
                         if not self.update(ticks[id], self.players_pos[id]):
                             if self.update(watchs[id], self.players_pos[id]):
-                                self.players_pos[id] = self.players_pos[id][0] + IController.to_tuple(ticks[id])[0], \
-                                                       self.players_pos[id][1] + IController.to_tuple(ticks[id])[1]
+                                self.players_pos[id] = self.players_pos[id][0] + IController.to_tuple(watchs[id])[0], \
+                                                       self.players_pos[id][1] + IController.to_tuple(watchs[id])[1]
                         else:
                             watchs[id] = ticks[id]
                             self.players_pos[id] = self.players_pos[id][0] + IController.to_tuple(ticks[id])[0], \

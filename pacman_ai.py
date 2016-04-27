@@ -2,6 +2,7 @@ from ai import AI
 from map import Map
 from math import sqrt
 from controller import IController
+from pathfind import PathFinder
 
 def dist(source: tuple, dest: tuple):
     return sqrt((dest[0] - source[0]) ** 2 + (dest[1] - source[1]) ** 2)
@@ -98,9 +99,9 @@ class PacmanAI(AI):
         return (pacpos, threats)
 
     def play(self, map):
-        pacman, enemies = self.locate_players(map)
+        source, enemies = self.locate_players(map)
         move, best = None, 0
-        assert map[pacman] == Map.PACMAN
+        assert map[source] == Map.PACMAN
         #print('[PacmanAI] Enemies position at ', enemies)
         for x in range(map.x):
             for y in range(map.y):
@@ -115,16 +116,9 @@ class PacmanAI(AI):
                         best = score
                         move = (x, y)
 
-        best, mv2 = 10000000, None
-        for x in range(-1, 2):
-            for y in range(-1, 2):
-                if abs(x) + abs(y) == 1:
-                    pos = (pacman[0] + x, pacman[1] + y)
-                    if map[pos] == Map.EMPTY:
-                        score = dist(pos, move)
-                        if score < best:
-                            best = score
-                            mv2 = (x, y)
-        #print(move, best)
-        #print('[PacmanAI]: Selected move', move)
-        return IController.from_tuple(mv2)
+        path = PathFinder(map).find(source, move, avoids=[Map.WALL, Map.GHOST])
+        if path:
+            return IController.from_tuple((path[0][0] - source[0], path[0][1] - source[1]))
+        else:
+            # TODO : retard style
+            return None

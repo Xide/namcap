@@ -1,4 +1,6 @@
+from math import log10 as log
 import png
+import copy
 
 class Map:
     EMPTY = 'E'
@@ -91,8 +93,14 @@ class Map:
         self[source], self[dest] = self[dest], self[source]
         return True
 
+    def copy(self):
+        res = Map(self.x, self.y)
+        res.map = copy.deepcopy(self.map)
+        return res
+
     def __repr__(self):
-        return  '\n'.join([repr(x) for x in self.map])
+        #lenght = log(max([max(self.map[y]) for y in range(self.y)]))
+        return  '\n'.join(['%s%s' % (' ' * 2, repr(x)) for x in self.map])
 
     def __getitem__(self, item):
         if isinstance(item, int):

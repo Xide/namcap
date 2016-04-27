@@ -6,7 +6,7 @@ from gamepadcontroller import GamepadController as Controller
 from keyboardcontroller import KeyboardController as FallbackController
 from map import Map
 from pacman_ai import PacmanAI
-
+from pathfind import PathFinder
 
 class Engine:
 
@@ -65,6 +65,7 @@ class Engine:
                 line[line.index(Map.SPAWN)] = Map.GHOST
             while Map.ENEMY_SPAWN in line:
                 line[line.index(Map.ENEMY_SPAWN)] = Map.PACMAN
+        PathFinder(self.map).find((1, 1), (1, 15))
 
     def run(self):
         stop = False

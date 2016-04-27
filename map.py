@@ -18,7 +18,7 @@ class Map:
         WALL = 255 # blue
         PLAYER_SPAWN = 255 << 8 # green
         ENEMY_SPAWN = 255 << 16 # red
-        PACMAN = (255 << 16) + (255 << 8)
+        PACMAN = 0xFFFF00
 
         @staticmethod
         def to_char(color: int):
@@ -76,10 +76,10 @@ class Map:
         elif self[dest] == Map.WALL:
             return False
 
-        assert not self[source] == Map.PACMAN and self[dest] == Map.GHOST, \
-            'Le pacman est stupide, il fonce dans un ennemi'
         if self[source] == Map.GHOST and self[dest] == Map.PACMAN:
-            raise Map.GameEnded('You WON')
+            raise Map.GameEnded('WON')
+        elif self[source] == Map.GHOST and self[dest] == Map.GHOST:
+            return False
         raise RuntimeError('On fout quoi la ?')
 
     def move(self, source: tuple, dest: tuple):

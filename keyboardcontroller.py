@@ -1,5 +1,6 @@
 from controller import IController
 from pygame.locals import *
+from map import Map
 
 class KeyboardController(IController):
     def __init__(self):
@@ -12,8 +13,11 @@ class KeyboardController(IController):
         }
 
     def pump(self, event) -> int:
-        if event.type == KEYDOWN and event.key in self.ctab:
-            return self.ctab[event.key]
+        if event.type == KEYDOWN:
+            if event.key in self.ctab:
+                return self.ctab[event.key]
+            if event.key == K_ESCAPE:
+                raise Map.GameEnded('exited')
         return None
 
     def match_device(self, event) -> bool:

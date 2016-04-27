@@ -1,4 +1,5 @@
 import pygame
+import time as _time
 from pygame import event, time
 from pygame.locals import QUIT, USEREVENT
 from controller import IController
@@ -8,7 +9,7 @@ from map import Map
 from pacman_ai import PacmanAI
 from ghost_ai import GhostAI
 from pathfind import PathFinder
-
+from pygame.locals import KEYDOWN, K_ESCAPE
 
 class Engine:
     def load_joysticks(self):
@@ -17,11 +18,7 @@ class Engine:
     def __init__(self, x, y, **kw):
         self.x = x
         self.y = y
-        numpass, numfail = pygame.init()
-        if numfail:
-            pygame.quit()
-            raise RuntimeError('Could not initialize %d modules (%d pass)'
-                               % (numfail, numpass))
+
         self.controllers = self.load_joysticks()
         if not len(self.controllers):
             self.controllers.append(FallbackController())
@@ -30,8 +27,16 @@ class Engine:
         self.ais = []
         if 'map' in kw:
             self.map.load_from_png_file(kw['map'])
-        pygame.key.set_repeat(400, 30)  # TODO : regler valeurs
         self.display = pygame.display.set_mode((x * 50, y * 50))
+
+    @staticmethod
+    def init():
+        numpass, numfail = pygame.init()
+        if numfail:
+            pygame.quit()
+            raise RuntimeError('Could not initialize %d modules (%d pass)'
+                               % (numfail, numpass))
+        pygame.key.set_repeat(400, 30)  # TODO : regler valeurs
 
     def flip(self):
         """
@@ -125,5 +130,31 @@ class Engine:
 
 
 if __name__ == '__main__':
-    engine = Engine(30, 20, map='map.png')
-    engine.run()
+    cont = True
+    X = 30
+    Y = 20
+    Engine.init()
+    font = pygame.font.SysFont("monospace", 30)
+    while cont:
+        start = _time.clock()
+        try:
+            #raise  Map.GameEnded
+            engine = Engine(X, Y, map='map.png')
+            engine.run()
+
+        except Map.GameEnded as reason:
+            elapsed = _time.clock() - start
+            print(elapsed)
+            display = pygame.display.set_mode((X * 50, Y * 50))
+            pygame.draw.circle(display, 0xFFFFFF, (X * 25, Y * 25), X * 12)
+            label = font.render('You %s, game duration: %2fs' % (str(reason), elapsed),
+                                1, (0, 0, 0))
+            display.blit(label, (X * 15, Y * 25))
+            pygame.display.flip()
+            waiting = True
+            while waiting:
+                for ev in event.get():
+                    if ev.type == KEYDOWN:
+                        if ev.key == K_ESCAPE:
+                            cont = False
+                        waiting = False

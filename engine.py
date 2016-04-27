@@ -65,7 +65,6 @@ class Engine:
                 line[line.index(Map.SPAWN)] = Map.GHOST
             while Map.ENEMY_SPAWN in line:
                 line[line.index(Map.ENEMY_SPAWN)] = Map.PACMAN
-        PathFinder(self.map).find((1, 1), (1, 15))
 
     def run(self):
         stop = False
@@ -97,11 +96,11 @@ class Engine:
                     if ticks[id]:
                         if not self.update(ticks[id]):
                             self.update(watchs[id])
-                            ticks[id] = watchs[id]
+                        else:
+                            watchs[id] = ticks[id]
                 for ai in self.ais:
                     self.update(ai.play(self.map), True)
                 self.flip()
-                watchs = ticks
 
 
 

@@ -20,6 +20,7 @@ class PathFinder:
                 if self.map[tmp] in avoids:
                     continue
                 if self.explored[source] + 1 < self.explored[tmp]:
+#                    print(self.explored[source] + 1, self.explored[tmp])
                     self.explored[tmp] = self.explored[source] + 1
                     self._pf(tmp, dest, avoids)
 

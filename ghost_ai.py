@@ -24,10 +24,10 @@ class GhostAI(IController):
                         map[self.position[0] + self.destination[0],
                             self.position[1] + self.destination[1]] in [Map.GHOST, Map.WALL]:
             self.destination = None
-            self.turns -= 5
+            self.turns -= 2
         if self.chasing:
             self.turns += 1
-            if self.turns >= 25:
+            if self.turns >= 20:
                 self.chasing = False
                 self.ticker = True
             print('CHASING')

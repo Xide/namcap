@@ -89,7 +89,7 @@ class Map:
             ))
         if (self[dest] != Map.EMPTY and not self.collide(source, dest)):
             return False
-        print("Moving '%s'%s to '%s'%s" % (self[source], source, self[dest], dest))
+        #print("Moving '%s'%s to '%s'%s" % (self[source], source, self[dest], dest))
         self[source], self[dest] = self[dest], self[source]
         return True
 

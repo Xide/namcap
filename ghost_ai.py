@@ -30,7 +30,6 @@ class GhostAI(IController):
             if self.turns >= 20:
                 self.chasing = False
                 self.ticker = True
-            print('CHASING')
             map[self.position] = Map.EMPTY
             # print(map, self.destination)
             path = PathFinder(map).find(self.position,
@@ -49,12 +48,10 @@ class GhostAI(IController):
         if not self.destination:
             while not self.destination:
                 ncoord = random.choice([(0, -1), (0, 1), (1, 0), (-1, 0)])
-                print(ncoord)
                 if map[self.position[0] + ncoord[0],
                        self.position[1] + ncoord[1]] != Map.EMPTY:
                     continue
                 self.destination = ncoord
-                print('SETTING DESTINATION')
 
         if self.turns > 0:
             self.position = self.position[0] + self.destination[0], \

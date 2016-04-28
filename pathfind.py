@@ -27,9 +27,9 @@ class PathFinder:
 
     def reverse_path(self, source):
         if self.explored[source] == PathFinder.LIMIT:
-            print('Impossible path')
+            #print('Impossible path')
             return None
-        print('Objective is %d steps ahead' % self.explored[source])
+        #print('Objective is %d steps ahead' % self.explored[source])
         path = []
 
         while self.explored[source]:

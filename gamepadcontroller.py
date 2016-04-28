@@ -1,6 +1,7 @@
 from controller import IController
 from pygame.locals import *
 from pygame import joystick
+from map import Map
 
 class GamepadController(IController):
 
@@ -12,6 +13,7 @@ class GamepadController(IController):
         joystick.init()
         assert joystick.get_count()
         self.joystick = joystick.Joystick(id)
+        self.id = id
         self.joystick.init()
         self.ctab = {
             (0, -1): IController.LEFT,
@@ -22,18 +24,19 @@ class GamepadController(IController):
 
     def pump(self, event) -> int:
         if event.type == JOYBUTTONDOWN:
+            print(event.dict['button'])
+            if event.dict['button'] == 6:
+                raise Map.GameEnded('exited')
             return IController.ACTION
         coord = (round(self.joystick.get_axis(0)),
                  round(self.joystick.get_axis(1)))
         if coord not in self.ctab:
             return None
         r = self.ctab[coord]
-        setattr(r, '_jid', self.joystick.id)
         return self.ctab[coord]
 
     def match_device(self, event):
-        print(hasattr(event, '_jid'))
         try:
-            return event._jid == self.joystick.id
+            return event.type == JOYAXISMOTION or event.type == JOYBUTTONDOWN
         except:
             return False

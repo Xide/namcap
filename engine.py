@@ -9,17 +9,21 @@ from map import Map
 from pacman_ai import PacmanAI
 from ghost_ai import GhostAI
 from pathfind import PathFinder
-from pygame.locals import KEYDOWN, K_ESCAPE
+from pygame.locals import *
+import copy
 
 class Engine:
     def load_joysticks(self):
-        return []
+        self.controllers = []
+
+        for i in range(0, pygame.joystick.get_count()):
+            self.controllers.append(Controller(i))
 
     def __init__(self, x, y, **kw):
         self.x = x
         self.y = y
 
-        self.controllers = self.load_joysticks()
+        self.load_joysticks()
         if not len(self.controllers):
             self.controllers.append(FallbackController())
         self.players_pos = []
@@ -37,6 +41,7 @@ class Engine:
             raise RuntimeError('Could not initialize %d modules (%d pass)'
                                % (numfail, numpass))
         pygame.key.set_repeat(400, 30)  # TODO : regler valeurs
+
 
     def flip(self):
         """
@@ -58,7 +63,6 @@ class Engine:
         ctab = IController.to_tuple_tab()
         if event in ctab:
             item = self.map[position]
-            print(item)
             assert item in [Map.PACMAN, Map.GHOST]
 
             return self.map.move(position, (position[0] + ctab[event][0],
@@ -84,7 +88,6 @@ class Engine:
 
     def run(self):
         stop = False
-        print(len(self.controllers))
         self.populate(3 - len(self.controllers))
         ticks = [IController.LEFT] * len(self.controllers)
         watchs = [IController.RIGHT] * len(self.controllers)
@@ -101,17 +104,21 @@ class Engine:
                     tick_watcher = True
                     break
 
-                for ctrl in self.controllers:
+                compute = False
+
+
+#                print('COUOU')
+                for idx, ctrl in enumerate(self.controllers):
                     if ctrl.match_device(ev):
-                        ev = ctrl.pump(ev)
+                        ev2 = ctrl.pump(ev)
+#                        print('matching device', self.controllers.index((ctrl)), ':', ev)
                         if ev is not None:
-                            ticks[self.controllers.index(ctrl)] = ev
+                            ticks[idx] = ev2
 
             if tick_watcher:
                 tick_watcher = False
                 for id in range(len(ticks)):
                     if ticks[id]:
-                        print(id, self.players_pos)
                         if not self.update(ticks[id], self.players_pos[id]):
                             if self.update(watchs[id], self.players_pos[id]):
                                 self.players_pos[id] = self.players_pos[id][0] + IController.to_tuple(watchs[id])[0], \
@@ -123,7 +130,6 @@ class Engine:
 
                 for ai in self.ais:
                     ps = ai.position
-                    print(type(ai), ai.position, self.map[ai.position])
                     if not self.update(ai.play(self.map), ps):
                         ai.position = ps
                 self.flip()
@@ -138,13 +144,12 @@ if __name__ == '__main__':
     while cont:
         start = _time.clock()
         try:
-            #raise  Map.GameEnded
+            # raise  Map.GameEnded
             engine = Engine(X, Y, map='map.png')
             engine.run()
 
         except Map.GameEnded as reason:
             elapsed = _time.clock() - start
-            print(elapsed)
             display = pygame.display.set_mode((X * 50, Y * 50))
             pygame.draw.circle(display, 0xFFFFFF, (X * 25, Y * 25), X * 12)
             label = font.render('You %s, game duration: %2fs' % (str(reason), elapsed),
@@ -154,7 +159,7 @@ if __name__ == '__main__':
             waiting = True
             while waiting:
                 for ev in event.get():
-                    if ev.type == KEYDOWN:
-                        if ev.key == K_ESCAPE:
-                            cont = False
-                        waiting = False
+                    if ((ev.type == KEYDOWN and ev.key == K_ESCAPE) or
+                            (ev.type == JOYBUTTONDOWN and ev.dict['button'] == 6)):
+                        cont = False
+                    waiting = False
